@@ -4,6 +4,7 @@ import cors from "cors";
 import "dotenv/config";
 
 import waterRouter from "./routes/water.js";
+import usersRouter from "./routes/users.js";
 
 export const app = express();
 
@@ -11,7 +12,8 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/movies", waterRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/water", waterRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
