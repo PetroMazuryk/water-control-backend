@@ -41,3 +41,11 @@ export const loginUser = async (email, password) => {
 
   return { user: existedUser, tokens };
 };
+
+export const logoutUser = async (refreshToken) => {
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {}
+  if (decoded) await User.findByIdAndUpdate(decoded.id, { token: null });
+};

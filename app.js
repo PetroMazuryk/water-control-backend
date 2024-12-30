@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 
 import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
@@ -10,6 +11,7 @@ export const app = express();
 
 app.use(morgan("tiny"));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/users", usersRouter);

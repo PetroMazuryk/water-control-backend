@@ -1,4 +1,4 @@
-import { registerUser, loginUser } from "../services/users.js";
+import { registerUser, loginUser, logoutUser } from "../services/users.js";
 
 export const register = async (req, res, next) => {
   const newUser = await registerUser(req.body);
@@ -31,4 +31,22 @@ export const login = async (req, res, next) => {
       photo: user.photo,
     },
   });
+};
+
+export const logout = async (req, res, next) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return res.status(400).json({ message: "No refresh token provided" });
+  }
+
+  try {
+    await logoutUser(refreshToken);
+    res.clearCookie("refreshToken", { sameSite: "none", secure: true });
+    res.status(200).json({
+      message: "Logout success",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
