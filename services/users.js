@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import gravatar from "gravatar";
 import createHttpError from "http-errors";
 import { User } from "../models/user.js";
+import { generateTokens } from "../helpers/generateTokens.js";
 
 export const registerUser = async (data) => {
   const { email, password } = data;
@@ -21,4 +22,22 @@ export const registerUser = async (data) => {
     avatarURL: `http:${generatedAvatar}`,
     verificationToken,
   });
+};
+
+export const loginUser = async (email, password) => {
+  const existedUser = await User.findOne({ email });
+  if (!existedUser) {
+    throw createHttpError(401, "Email or password is wrong");
+  }
+
+  const isMatch = await bcrypt.compare(password, existedUser.password);
+  if (!isMatch) {
+    throw createHttpError(401, "Email or password is wrong");
+  }
+
+  const tokens = generateTokens(existedUser);
+
+  await User.findByIdAndUpdate(existedUser._id, { token: tokens.accessToken });
+
+  return { user: existedUser, tokens };
 };

@@ -72,8 +72,18 @@ const userRegisterSchema = Joi.object({
   }),
 });
 
+export const loginUserSchema = Joi.object({
+  password: Joi.string().required(),
+  email: Joi.string().email().trim().lowercase().required().messages({
+    "any.required": "Email is required",
+    "string.email": "Email must be a valid email",
+    "string.empty": "Email cannot be empty",
+  }),
+});
+
 const schemas = {
   userRegisterSchema,
+  loginUserSchema,
 };
 
 export { User, schemas };
