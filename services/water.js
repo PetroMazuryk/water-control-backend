@@ -20,3 +20,10 @@ export const createWater = async (payload) => {
   const data = { id: _id, ...other };
   return data;
 };
+
+export const getWaterById = async (waterId, userId) => {
+  return await WaterCollection.findOne(
+    { _id: waterId, owner: userId },
+    "-_id -owner"
+  );
+};

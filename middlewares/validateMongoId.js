@@ -13,7 +13,7 @@ export const validateMongoId =
     }
 
     if (!isValidObjectId(id)) {
-      return next(createHttpError(400, `Invalid ${idName}`));
+      return next(createHttpError(400, `Inval id ${id}`));
     }
 
     next();
