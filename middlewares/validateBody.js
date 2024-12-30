@@ -1,13 +1,13 @@
-import createHttpError from "http-errors";
+import HttpError from "../helpers/HttpError.js";
 
-export const validateBody = (schema) => async (req, _, next) => {
-  try {
-    await schema.validateAsync(req.body, { abortEarly: false });
+export const validateBody = (schema) => {
+  const func = (req, _, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      next(HttpError(400, error.message));
+    }
     next();
-  } catch (err) {
-    const error = createHttpError(400, "Bad request", {
-      errors: err.details,
-    });
-    next(error);
-  }
+  };
+
+  return func;
 };
