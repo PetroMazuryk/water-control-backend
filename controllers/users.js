@@ -1,4 +1,9 @@
-import { registerUser, loginUser, logoutUser } from "../services/users.js";
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
+} from "../services/users.js";
 
 export const register = async (req, res, next) => {
   const newUser = await registerUser(req.body);
@@ -45,6 +50,28 @@ export const logout = async (req, res, next) => {
     res.clearCookie("refreshToken", { sameSite: "none", secure: true });
     res.status(200).json({
       message: "Logout success",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const currentUser = async (req, res, next) => {
+  try {
+    const user = await getCurrentUser(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      email: user.email,
+      name: user.name,
+      weight: user.weight,
+      dailyActiveTime: user.dailyActiveTime,
+      dailyWaterConsumption: user.dailyWaterConsumption,
+      gender: user.gender,
+      photo: user.photo,
     });
   } catch (error) {
     next(error);

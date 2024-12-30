@@ -49,3 +49,10 @@ export const logoutUser = async (refreshToken) => {
   } catch (err) {}
   if (decoded) await User.findByIdAndUpdate(decoded.id, { token: null });
 };
+
+export const getCurrentUser = async (userId) => {
+  return await User.findById(
+    userId,
+    "name weight dailyActiveTime dailyWaterConsumption gender photo email "
+  );
+};
