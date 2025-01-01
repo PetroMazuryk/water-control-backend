@@ -2,6 +2,7 @@ import {
   createWater,
   getWaterById,
   updateWaterById,
+  deleteWaterById,
 } from "../services/water.js";
 
 export const createWaterController = async (req, res) => {
@@ -54,5 +55,22 @@ export const updateWaterController = async (req, res, next) => {
     status: 200,
     message: "Successfully update a water!",
     data: updatedWater,
+  });
+};
+
+export const deleteWaterController = async (req, res, next) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  const water = await deleteWaterById(id, userId);
+
+  if (!water) {
+    next(createHttpError(404, "Water not found"));
+    return;
+  }
+
+  res.status(200).json({
+    status: 200,
+    message: "Successfully delete a water!",
   });
 };

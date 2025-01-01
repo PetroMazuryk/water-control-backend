@@ -8,6 +8,7 @@ import {
   createWaterController,
   getWaterByIdController,
   updateWaterController,
+  deleteWaterController,
 } from "../controllers/water.js";
 
 const waterRouter = express.Router();
@@ -26,6 +27,12 @@ waterRouter.patch(
   validateMongoId(),
   validateBody(schemas.updateWaterSchema),
   ctrlWrapper(updateWaterController)
+);
+
+waterRouter.delete(
+  "/:id",
+  validateMongoId(),
+  ctrlWrapper(deleteWaterController)
 );
 
 export default waterRouter;

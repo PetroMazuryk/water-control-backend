@@ -6,7 +6,7 @@ export const generateTokens = (user) => {
   const payload = { id: user._id };
 
   const accessToken = jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "60m",
+    expiresIn: "120m",
   });
   const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
     expiresIn: "8d",

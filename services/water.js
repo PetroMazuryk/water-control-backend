@@ -56,3 +56,16 @@ export const updateWaterById = async (waterId, userId, payload) => {
   const { _id, owner, ...other } = updatedWater.toObject();
   return { id: _id, ...other };
 };
+
+export const deleteWaterById = async (waterId, userId) => {
+  const water = await WaterCollection.findOneAndDelete({
+    _id: waterId,
+    owner: userId,
+  });
+
+  if (!water) return null;
+
+  const { _id, owner, ...other } = water._doc;
+  const data = { id: _id, ...other };
+  return data;
+};
