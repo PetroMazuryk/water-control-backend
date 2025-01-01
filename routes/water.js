@@ -7,6 +7,7 @@ import { schemas } from "../models/water.js";
 import {
   createWaterController,
   getWaterByIdController,
+  updateWaterController,
 } from "../controllers/water.js";
 
 const waterRouter = express.Router();
@@ -19,5 +20,12 @@ waterRouter.post(
 );
 
 waterRouter.get("/:id", validateMongoId(), ctrlWrapper(getWaterByIdController));
+
+waterRouter.patch(
+  "/:id",
+  validateMongoId(),
+  validateBody(schemas.updateWaterSchema),
+  ctrlWrapper(updateWaterController)
+);
 
 export default waterRouter;

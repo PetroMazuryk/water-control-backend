@@ -1,4 +1,8 @@
-import { createWater, getWaterById } from "../services/water.js";
+import {
+  createWater,
+  getWaterById,
+  updateWaterById,
+} from "../services/water.js";
 
 export const createWaterController = async (req, res) => {
   const data = {
@@ -31,5 +35,24 @@ export const getWaterByIdController = async (req, res, next) => {
     status: 200,
     message: `Successfully found water with id ${id}!`,
     data: water,
+  });
+};
+
+export const updateWaterController = async (req, res, next) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  const data = { ...req.body };
+
+  const updatedWater = await updateWaterById(id, userId, data);
+
+  if (!updatedWater) {
+    next(createHttpError(404, "Water not found"));
+    return;
+  }
+
+  res.status(200).json({
+    status: 200,
+    message: "Successfully update a water!",
+    data: updatedWater,
   });
 };
