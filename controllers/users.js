@@ -1,6 +1,7 @@
 import {
   registerUser,
   loginUser,
+  refreshUserSession,
   logoutUser,
   getCurrentUser,
 } from "../services/users.js";
@@ -36,6 +37,21 @@ export const login = async (req, res, next) => {
       photo: user.photo,
     },
   });
+};
+
+export const refreshTokens = async (req, res, next) => {
+  const { refreshToken } = req.cookies;
+  if (!refreshToken && refreshToken === "undefined") {
+    throw createHttpError(401, "Not authorized");
+  }
+  const tokens = await refreshUserSession(refreshToken);
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+  });
+  res.status(200).json({ token: tokens.accessToken });
 };
 
 export const logout = async (req, res, next) => {

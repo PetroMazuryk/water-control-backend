@@ -42,6 +42,26 @@ export const loginUser = async (email, password) => {
   return { user: existedUser, tokens };
 };
 
+export const refreshUserSession = async (refreshToken) => {
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    throw createHttpError(401, "Invalid refresh token");
+  }
+
+  const user = await User.findById(decoded.id);
+  if (!user) {
+    throw createHttpError(401, "User not found");
+  }
+
+  const tokens = generateTokens(user);
+
+  await User.findByIdAndUpdate(user._id, { token: tokens.accessToken });
+
+  return tokens;
+};
+
 export const logoutUser = async (refreshToken) => {
   let decoded;
   try {

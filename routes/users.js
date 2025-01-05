@@ -3,7 +3,13 @@ import { validateBody } from "../middlewares/validateBody.js";
 import { ctrlWrapper } from "../decorators/ctrlWrapper.js";
 import { schemas } from "../models/user.js";
 import { checkAuth } from "../middlewares/checkAuth.js";
-import { register, login, logout, currentUser } from "../controllers/users.js";
+import {
+  register,
+  login,
+  refreshTokens,
+  logout,
+  currentUser,
+} from "../controllers/users.js";
 
 const usersRouter = express.Router();
 
@@ -18,6 +24,8 @@ usersRouter.post(
   validateBody(schemas.loginUserSchema),
   ctrlWrapper(login)
 );
+
+usersRouter.post("/refresh", ctrlWrapper(refreshTokens));
 
 usersRouter.post("/logout", ctrlWrapper(logout));
 
