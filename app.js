@@ -7,10 +7,15 @@ import cookieParser from "cookie-parser";
 import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
 
+const corsOptions = {
+  origin: ["http://localhost:5173"],
+  credentials: true,
+};
+
 export const app = express();
 
 app.use(morgan("tiny"));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
