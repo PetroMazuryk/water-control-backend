@@ -8,7 +8,10 @@ import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: [
+    "https://petromazuryk.github.io/water-control-frontend/",
+    "http://localhost:5173",
+  ],
   credentials: true,
 };
 

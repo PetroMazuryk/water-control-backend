@@ -2,7 +2,7 @@
   "name": "water-control-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./server.js",
