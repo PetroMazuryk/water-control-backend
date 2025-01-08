@@ -9,7 +9,7 @@ import usersRouter from "./routes/users.js";
 
 const corsOptions = {
   origin: [
-    "https://petromazuryk.github.io/water-control-frontend/",
+    "https://petromazuryk.github.io/water-control-frontend",
     "http://localhost:5173",
   ],
   credentials: true,
