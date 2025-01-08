@@ -25,11 +25,13 @@ export const login = async (req, res) => {
 
   const { user, tokens } = await loginUser(email, password);
 
-  const isProduction = process.env.NODE_ENV === "production";
+  // const isProduction = process.env.NODE_ENV === "production";
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
-    sameSite: isProduction ? "none" : "lax",
-    secure: isProduction,
+    sameSite: "none",
+    secure: true,
+    // sameSite: isProduction ? "none" : "lax",
+    // secure: isProduction,
     expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 днів
   });
 
@@ -56,11 +58,13 @@ export const refreshTokens = async (req, res, next) => {
   try {
     const tokens = await refreshUserSession(refreshToken);
 
-    const isProduction = process.env.NODE_ENV === "production";
+    // const isProduction = process.env.NODE_ENV === "production";
     res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: "none",
+      secure: true,
+      // secure: isProduction,
+      // sameSite: isProduction ? "none" : "lax",
       expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     });
 
@@ -80,10 +84,12 @@ export const logout = async (req, res, next) => {
   try {
     await logoutUser(refreshToken);
 
-    const isProduction = process.env.NODE_ENV === "production";
+    // const isProduction = process.env.NODE_ENV === "production";
     res.clearCookie("refreshToken", {
-      sameSite: isProduction ? "none" : "lax",
-      secure: isProduction,
+      sameSite: "none",
+      secure: true,
+      // sameSite: isProduction ? "none" : "lax",
+      // secure: isProduction,
     });
 
     res.status(200).json({ message: "Logout success" });
