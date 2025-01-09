@@ -24,6 +24,7 @@ const corsOptions = {
 export const app = express();
 
 app.use(morgan("tiny"));
+app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
