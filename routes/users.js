@@ -27,8 +27,8 @@ usersRouter.post(
 
 usersRouter.post("/refresh", ctrlWrapper(refreshTokens));
 
-usersRouter.post("/logout", ctrlWrapper(logout));
-
 usersRouter.get("/current", checkAuth, ctrlWrapper(currentUser));
+
+usersRouter.post("/logout", checkAuth, ctrlWrapper(logout));
 
 export default usersRouter;
