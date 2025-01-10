@@ -69,3 +69,47 @@ export const deleteWaterById = async (waterId, userId) => {
   const data = { id: _id, ...other };
   return data;
 };
+
+export const getWaterPrDay = async (userId, timestamp) => {
+  const date = new Date(parseInt(timestamp));
+
+  const startOfDay = new Date(date);
+  startOfDay.setUTCHours(0o0, 0o0, 0o0, 0o0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setUTCHours(23, 59, 59, 999);
+
+  const startOfDayTimestamp = startOfDay.getTime();
+  const endOfDayTimestamp = endOfDay.getTime();
+
+  const PerDay = await WaterCollection.find({
+    owner: userId,
+    date: {
+      $gte: startOfDayTimestamp,
+      $lte: endOfDayTimestamp,
+    },
+  }).lean();
+
+  if (!PerDay || PerDay.length === 0) {
+    return {
+      value: [],
+      totalAmount: 0,
+      totalPercentage: 0,
+    };
+  }
+
+  const value = PerDay.map(({ _id, owner, ...rest }) => {
+    return { id: _id, ...rest };
+  });
+
+  const totalAmount = PerDay.reduce((acc, curr) => acc + curr.amount, 0);
+  const totalPercentage = parseFloat(
+    PerDay.reduce((acc, curr) => acc + curr.percentage, 0).toFixed(2)
+  );
+
+  return {
+    value,
+    totalAmount,
+    totalPercentage,
+  };
+};

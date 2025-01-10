@@ -9,6 +9,7 @@ import {
   getWaterByIdController,
   updateWaterController,
   deleteWaterController,
+  getWaterPrDayController,
 } from "../controllers/water.js";
 
 const waterRouter = express.Router();
@@ -34,5 +35,7 @@ waterRouter.delete(
   validateMongoId(),
   ctrlWrapper(deleteWaterController)
 );
+
+waterRouter.get("/day/:date", ctrlWrapper(getWaterPrDayController));
 
 export default waterRouter;

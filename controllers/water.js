@@ -3,6 +3,7 @@ import {
   getWaterById,
   updateWaterById,
   deleteWaterById,
+  getWaterPrDay,
 } from "../services/water.js";
 
 export const createWaterController = async (req, res) => {
@@ -72,5 +73,20 @@ export const deleteWaterController = async (req, res, next) => {
   res.status(200).json({
     status: 200,
     message: "Successfully delete a water!",
+  });
+};
+
+export const getWaterPrDayController = async (req, res, next) => {
+  const { date } = req.params;
+  const userId = req.user.id;
+
+  const result = await getWaterPrDay(userId, date);
+
+  res.status(200).json({
+    status: 200,
+    message: `Successfully!`,
+    data: result.value,
+    dailyAmount: result.totalAmount,
+    dailyPercentage: result.totalPercentage,
   });
 };
