@@ -11,6 +11,7 @@ import {
   deleteWaterController,
   getWaterPrDayController,
   getWaterPrWeekController,
+  getWaterPrMonthController,
 } from "../controllers/water.js";
 
 const waterRouter = express.Router();
@@ -40,5 +41,7 @@ waterRouter.delete(
 waterRouter.get("/day/:date", ctrlWrapper(getWaterPrDayController));
 
 waterRouter.get("/week/:date", ctrlWrapper(getWaterPrWeekController));
+
+waterRouter.get("/month/:date", ctrlWrapper(getWaterPrMonthController));
 
 export default waterRouter;

@@ -195,3 +195,94 @@ export const getWaterPrWeek = async (userId, timestamp) => {
 
   return { result, length: result.length };
 };
+
+// Функція для отримання останнього дня місяця з урахуванням високосного року
+const getLastDayOfMonth = (year, month) => {
+  return new Date(year, month + 1, 0).getDate();
+};
+
+export const getWaterPrMonth = async (userId, timestamp) => {
+  const date = new Date(parseInt(timestamp));
+  // Отримуємо перший день місяця
+  const firstDayOfMonth = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    1
+  );
+
+  // Отримуємо останній день місяця з урахуванням високосного року
+  const lastDayOfMonth = getLastDayOfMonth(
+    date.getUTCFullYear(),
+    date.getUTCMonth()
+  );
+
+  // Конвертуємо в Unix timestamp
+  const startOfDayOfMonthTimestamp = Math.floor(firstDayOfMonth.getTime());
+  const endOfDayOfMonthTimestamp = Math.floor(
+    new Date(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      lastDayOfMonth
+    ).getTime()
+  );
+
+  // Знаходимо записи для даного користувача за місяць
+  const perDay = await WaterCollection.find({
+    owner: userId,
+    date: {
+      $gte: startOfDayOfMonthTimestamp,
+      $lte: endOfDayOfMonthTimestamp,
+    },
+  }).lean();
+
+  // Якщо немає записів, повертаємо порожні значення
+  if (!perDay || perDay.length === 0) {
+    // Формуємо масив результатів з порожніми значеннями
+    const result = Array.from({ length: lastDayOfMonth }, (_, i) => {
+      const day = i + 1;
+      return {
+        date: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), day))
+          .getTime()
+          .toString(),
+        amount: 0,
+        percentage: 0,
+      };
+    });
+
+    return { result, length: result.length };
+  }
+
+  // Групуємо записи за днями
+  const groupedByDate = {};
+  perDay.forEach(({ date, amount, percentage }) => {
+    const day = new Date(parseInt(date)).getUTCDate();
+    if (!groupedByDate[day]) {
+      groupedByDate[day] = {
+        amount: 0,
+        date: date,
+        percent: 0,
+      };
+    }
+    groupedByDate[day].amount += amount;
+    groupedByDate[day].percent += percentage; // Додаємо відсоток для кожного прийому
+  });
+
+  // Формуємо масив результатів на основі кількості днів у місяці
+  const result = Array.from({ length: lastDayOfMonth }, (_, i) => {
+    const day = i + 1;
+    const dayData = groupedByDate[day] || {
+      amount: 0,
+      date: new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), day)
+      ).getTime(),
+      percent: 0,
+    };
+    return {
+      date: dayData.date.toString(),
+      amount: dayData.amount,
+      percentage: parseFloat(dayData.percent.toFixed(2)),
+    };
+  });
+
+  return { result, length: result.length };
+};
