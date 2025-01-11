@@ -25,13 +25,11 @@ export const login = async (req, res) => {
 
   const { user, tokens } = await loginUser(email, password);
 
-  // const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
-    // sameSite: isProduction ? "none" : "lax",
-    // secure: isProduction,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 днів
   });
 
@@ -48,75 +46,60 @@ export const login = async (req, res) => {
     },
   });
 };
-export const refreshTokens = async (req, res, next) => {
+
+export const refreshTokens = async (req, res) => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    throw createHttpError(401, "Not authorized");
+    return res.status(401).json({ message: "Not authorized" });
   }
 
-  try {
-    const tokens = await refreshUserSession(refreshToken);
+  const tokens = await refreshUserSession(refreshToken);
 
-    // const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("refreshToken", tokens.refreshToken, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      // secure: isProduction,
-      // sameSite: isProduction ? "none" : "lax",
-      expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-    });
+  const isProduction = process.env.NODE_ENV === "production";
+  res.cookie("refreshToken", tokens.refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+  });
 
-    res.status(200).json({ token: tokens.accessToken });
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).json({ token: tokens.accessToken });
 };
 
-export const logout = async (req, res, next) => {
+export const logout = async (req, res) => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
     return res.status(401).json({ message: "No refresh token provided" });
   }
 
-  try {
-    await logoutUser(refreshToken);
+  await logoutUser(refreshToken);
 
-    // const isProduction = process.env.NODE_ENV === "production";
-    res.clearCookie("refreshToken", {
-      sameSite: "none",
-      secure: true,
-      // sameSite: isProduction ? "none" : "lax",
-      // secure: isProduction,
-    });
+  const isProduction = process.env.NODE_ENV === "production";
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
 
-    res.status(200).json({ message: "Logout success" });
-  } catch (error) {
-    console.error("Error during logout:", error);
-    next(error);
-  }
+  res.status(200).json({ message: "Logout success" });
 };
 
-export const currentUser = async (req, res, next) => {
-  try {
-    const user = await getCurrentUser(req.user.id);
+export const currentUser = async (req, res) => {
+  const user = await getCurrentUser(req.user.id);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json({
-      email: user.email,
-      name: user.name,
-      weight: user.weight,
-      dailyActiveTime: user.dailyActiveTime,
-      dailyWaterConsumption: user.dailyWaterConsumption,
-      gender: user.gender,
-      photo: user.photo,
-    });
-  } catch (error) {
-    next(error);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
   }
+
+  res.json({
+    email: user.email,
+    name: user.name,
+    weight: user.weight,
+    dailyActiveTime: user.dailyActiveTime,
+    dailyWaterConsumption: user.dailyWaterConsumption,
+    gender: user.gender,
+    photo: user.photo,
+  });
 };

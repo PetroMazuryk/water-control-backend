@@ -10,19 +10,20 @@ import usersRouter from "./routes/users.js";
 const corsOptions = {
   origin: ["https://petromazuryk.github.io", "http://localhost:5173"],
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-// if (process.env.NODE_ENV === "production") {
-//   console.log("Running in production mode");
-// } else {
-//   console.log("Running in development mode");
-// }
+if (process.env.NODE_ENV === "production") {
+  console.log("Running in production mode");
+} else {
+  console.log("Running in development mode");
+}
 
 export const app = express();
 
 app.use(morgan("tiny"));
-app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
