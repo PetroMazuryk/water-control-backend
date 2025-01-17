@@ -9,6 +9,7 @@ import {
   refreshTokens,
   logout,
   currentUser,
+  updateUser,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
@@ -30,5 +31,12 @@ usersRouter.post("/refresh", ctrlWrapper(refreshTokens));
 usersRouter.get("/current", checkAuth, ctrlWrapper(currentUser));
 
 usersRouter.post("/logout", checkAuth, ctrlWrapper(logout));
+
+usersRouter.patch(
+  "/info",
+  checkAuth,
+  validateBody(schemas.infoUserSchema),
+  ctrlWrapper(updateUser)
+);
 
 export default usersRouter;

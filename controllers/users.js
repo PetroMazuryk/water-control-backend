@@ -4,6 +4,7 @@ import {
   refreshUserSession,
   logoutUser,
   getCurrentUser,
+  updateUserDetails,
 } from "../services/users.js";
 
 export const register = async (req, res, next) => {
@@ -101,5 +102,26 @@ export const currentUser = async (req, res) => {
     dailyWaterConsumption: user.dailyWaterConsumption,
     gender: user.gender,
     photo: user.photo,
+  });
+};
+
+export const updateUser = async (req, res, next) => {
+  const {
+    email,
+    name,
+    weight,
+    dailyActiveTime,
+    dailyWaterConsumption,
+    gender,
+    photo,
+  } = await updateUserDetails(req.user.id, req.body);
+  res.json({
+    email,
+    name,
+    weight,
+    dailyActiveTime,
+    dailyWaterConsumption,
+    gender,
+    photo,
   });
 };

@@ -72,7 +72,7 @@ const userRegisterSchema = Joi.object({
   }),
 });
 
-export const loginUserSchema = Joi.object({
+const loginUserSchema = Joi.object({
   password: Joi.string().required(),
   email: Joi.string().email().trim().lowercase().required().messages({
     "any.required": "Email is required",
@@ -81,9 +81,23 @@ export const loginUserSchema = Joi.object({
   }),
 });
 
+export const infoUserSchema = Joi.object({
+  email: Joi.string().email(),
+  name: Joi.string().trim(),
+  weight: Joi.number().min(0),
+  dailyActiveTime: Joi.number().min(0),
+  dailyWaterConsumption: Joi.number().min(0),
+  gender: Joi.string().valid("woman", "man"),
+})
+  .min(1)
+  .messages({
+    "object.min": "At least one field must be filled",
+  });
+
 const schemas = {
   userRegisterSchema,
   loginUserSchema,
+  infoUserSchema,
 };
 
 export { User, schemas };

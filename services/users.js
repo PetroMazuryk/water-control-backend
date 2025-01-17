@@ -76,3 +76,21 @@ export const getCurrentUser = async (userId) => {
     "name weight dailyActiveTime dailyWaterConsumption gender photo email "
   );
 };
+
+export const updateUserDetails = async (userId, data) => {
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { $set: data },
+    {
+      new: true,
+      fields:
+        "name weight dailyActiveTime dailyWaterConsumption gender photo email",
+    }
+  );
+
+  if (!result) {
+    throw createHttpError(404, "User not found");
+  }
+
+  return result;
+};
