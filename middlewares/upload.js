@@ -4,11 +4,11 @@ import path from "path";
 export const TEMP_UPLOAD_DIR = path.join(process.cwd(), "temp");
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (_, file, cb) {
     cb(null, TEMP_UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = `${Date.now()}_${Math.round(Math.random() * 1e5)}`;
     cb(null, `${uniqueSuffix}_${file.originalname}`);
   },
 });

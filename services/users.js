@@ -94,3 +94,13 @@ export const updateUserDetails = async (userId, data) => {
 
   return result;
 };
+
+export const uploadAvatarService = async (userId, urlPhoto) => {
+  const { value } = await User.findByIdAndUpdate(
+    { _id: userId },
+    { photo: urlPhoto },
+    { new: true, includeResultMetadata: true }
+  );
+
+  return { photo: value.photo };
+};

@@ -5,7 +5,9 @@ import {
   logoutUser,
   getCurrentUser,
   updateUserDetails,
+  uploadAvatarService,
 } from "../services/users.js";
+import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
 
 export const register = async (req, res, next) => {
   const newUser = await registerUser(req.body);
@@ -124,4 +126,14 @@ export const updateUser = async (req, res, next) => {
     gender,
     photo,
   });
+};
+
+export const uploadAvatar = async (req, res, next) => {
+  if (!req.file) {
+    throw createHttpError(400, "File not provided");
+  }
+  const photo = req.file;
+  const url = await saveFileToCloudinary(photo);
+  const data = await uploadAvatarService(req.user.id, url);
+  res.json(data);
 };
