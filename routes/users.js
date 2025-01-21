@@ -12,6 +12,7 @@ import {
   currentUser,
   updateUser,
   uploadAvatar,
+  getUserCount,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
@@ -47,5 +48,7 @@ usersRouter.patch(
   upload.single("avatar"),
   ctrlWrapper(uploadAvatar)
 );
+
+usersRouter.get("/count", ctrlWrapper(getUserCount));
 
 export default usersRouter;

@@ -104,3 +104,11 @@ export const uploadAvatarService = async (userId, urlPhoto) => {
 
   return { photo: value.photo };
 };
+
+export const getUserCountService = async () => {
+  const count = await User.countDocuments();
+  const users = await User.find({}, "email");
+  const emails = users.map((user) => user.email);
+
+  return { count, emails };
+};

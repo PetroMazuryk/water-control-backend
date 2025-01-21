@@ -6,6 +6,7 @@ import {
   getCurrentUser,
   updateUserDetails,
   uploadAvatarService,
+  getUserCountService,
 } from "../services/users.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
 
@@ -136,4 +137,9 @@ export const uploadAvatar = async (req, res, next) => {
   const url = await saveFileToCloudinary(photo);
   const data = await uploadAvatarService(req.user.id, url);
   res.json(data);
+};
+
+export const getUserCount = async (req, res) => {
+  const { count, emails } = await getUserCountService();
+  res.status(200).json({ count, emails });
 };
