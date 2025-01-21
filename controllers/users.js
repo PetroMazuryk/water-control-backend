@@ -8,6 +8,7 @@ import {
   uploadAvatarService,
   getUserCountService,
 } from "../services/users.js";
+import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
 
 export const register = async (req, res, next) => {
@@ -47,6 +48,7 @@ export const login = async (req, res) => {
       dailyWaterConsumption: user.dailyWaterConsumption,
       gender: user.gender,
       photo: user.photo,
+      access: user.access,
     },
   });
 };
@@ -140,6 +142,19 @@ export const uploadAvatar = async (req, res, next) => {
 };
 
 export const getUserCount = async (req, res) => {
-  const { count, emails } = await getUserCountService();
-  res.status(200).json({ count, emails });
+  const { count, users } = await getUserCountService();
+  res.status(200).json({ count, users });
+};
+
+export const updateUserAccess = async (req, res) => {
+  const { id } = req.params;
+  const { access } = req.body;
+
+  const user = await User.findByIdAndUpdate(id, { access }, { new: true });
+
+  if (!user) {
+    throw HttpError(404, `User with ID ${id} not found.`);
+  }
+
+  res.status(200).json({ message: "Access updated successfully.", user });
 };

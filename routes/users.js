@@ -3,7 +3,10 @@ import { validateBody } from "../middlewares/validateBody.js";
 import { ctrlWrapper } from "../decorators/ctrlWrapper.js";
 import { schemas } from "../models/user.js";
 import { checkAuth } from "../middlewares/checkAuth.js";
+
 import { upload } from "../middlewares/upload.js";
+import { validateMongoId } from "../middlewares/validateMongoId.js";
+
 import {
   register,
   login,
@@ -13,6 +16,7 @@ import {
   updateUser,
   uploadAvatar,
   getUserCount,
+  updateUserAccess,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
@@ -50,5 +54,12 @@ usersRouter.patch(
 );
 
 usersRouter.get("/count", ctrlWrapper(getUserCount));
+
+usersRouter.patch(
+  "/:id/access",
+  validateMongoId(),
+  validateBody(schemas.updateUserAccessSchema),
+  ctrlWrapper(updateUserAccess)
+);
 
 export default usersRouter;

@@ -45,6 +45,8 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
+    access: { type: Boolean, default: true },
+
     verify: {
       type: Boolean,
       default: false,
@@ -94,10 +96,15 @@ export const infoUserSchema = Joi.object({
     "object.min": "At least one field must be filled",
   });
 
+const updateUserAccessSchema = Joi.object({
+  access: Joi.boolean().required(),
+});
+
 const schemas = {
   userRegisterSchema,
   loginUserSchema,
   infoUserSchema,
+  updateUserAccessSchema,
 };
 
 export { User, schemas };

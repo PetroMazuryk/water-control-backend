@@ -107,8 +107,14 @@ export const uploadAvatarService = async (userId, urlPhoto) => {
 
 export const getUserCountService = async () => {
   const count = await User.countDocuments();
-  const users = await User.find({}, "email");
-  const emails = users.map((user) => user.email);
 
-  return { count, emails };
+  const users = await User.find({}, "email _id access");
+
+  const userData = users.map((user) => ({
+    id: user._id,
+    email: user.email,
+    access: user.access,
+  }));
+
+  return { count, users: userData };
 };
