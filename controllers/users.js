@@ -107,6 +107,7 @@ export const currentUser = async (req, res) => {
     dailyWaterConsumption: user.dailyWaterConsumption,
     gender: user.gender,
     photo: user.photo,
+    access: user.access,
   });
 };
 

@@ -73,7 +73,7 @@ export const logoutUser = async (refreshToken) => {
 export const getCurrentUser = async (userId) => {
   return await User.findById(
     userId,
-    "name weight dailyActiveTime dailyWaterConsumption gender photo email "
+    "name weight dailyActiveTime dailyWaterConsumption gender photo email access"
   );
 };
 
