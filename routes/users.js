@@ -21,6 +21,9 @@ import {
 
 const usersRouter = express.Router();
 
+
+router.get('/google');
+
 usersRouter.post(
   "/register",
   validateBody(schemas.userRegisterSchema),
