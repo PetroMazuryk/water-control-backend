@@ -22,7 +22,7 @@ import {
 const usersRouter = express.Router();
 
 
-router.get('/google');
+usersRouter.get('/google');
 
 usersRouter.post(
   "/register",
