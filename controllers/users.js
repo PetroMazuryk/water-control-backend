@@ -10,6 +10,7 @@ import {
 } from "../services/users.js";
 import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
+import {isProduction} from '../config/config.js'
 
 export const register = async (req, res, next) => {
   const newUser = await registerUser(req.body);
@@ -30,7 +31,7 @@ export const login = async (req, res) => {
 
   const { user, tokens } = await loginUser(email, password);
 
-  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
     secure: isProduction,
@@ -62,7 +63,7 @@ export const refreshTokens = async (req, res) => {
 
   const tokens = await refreshUserSession(refreshToken);
 
-  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("refreshToken", tokens.refreshToken, {
     httpOnly: true,
     secure: isProduction,
@@ -82,7 +83,7 @@ export const logout = async (req, res) => {
 
   await logoutUser(refreshToken);
 
-  const isProduction = process.env.NODE_ENV === "production";
+  
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: isProduction,
