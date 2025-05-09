@@ -12,6 +12,13 @@ import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
 import {isProduction} from '../config/config.js'
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), 
+};
+
 export const register = async (req, res, next) => {
   const newUser = await registerUser(req.body);
   const { email } = newUser;
@@ -32,12 +39,7 @@ export const login = async (req, res) => {
   const { user, tokens } = await loginUser(email, password);
 
 
-  res.cookie("refreshToken", tokens.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 днів
-  });
+  res.cookie("refreshToken", tokens.refreshToken, cookieOptions);
 
   res.status(200).json({
     token: tokens.accessToken,
@@ -64,12 +66,7 @@ export const refreshTokens = async (req, res) => {
   const tokens = await refreshUserSession(refreshToken);
 
 
-  res.cookie("refreshToken", tokens.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-  });
+  res.cookie("refreshToken", tokens.refreshToken, cookieOptions);
 
   res.status(200).json({ token: tokens.accessToken });
 };
