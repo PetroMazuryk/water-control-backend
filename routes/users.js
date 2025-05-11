@@ -17,12 +17,15 @@ import {
   uploadAvatar,
   getUserCount,
   updateUserAccess,
+  googleAuth,
+  googleRedirect
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
 
 
-
+usersRouter.get('/google', ctrlWrapper(googleAuth));
+usersRouter.get('/google-redirect', ctrlWrapper(googleRedirect));
 
 usersRouter.post(
   "/register",
