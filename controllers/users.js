@@ -18,6 +18,13 @@ import crypto from 'crypto';
 import createHttpError from 'http-errors';
 import { generateTokens } from '../helpers/generateTokens.js';
 
+const REDIRECT_URI = isProduction
+  ? 'https://water-control-backend.onrender.com/api/users/google-redirect'
+  : 'http://localhost:4444/api/users/google-redirect';
+
+const APP_DOMAIN = isProduction 
+  ? process.env.APP_DOMAIN 
+  : process.env.APP_DOMAIN_LOCAL;
 
 const cookieOptions = {
   httpOnly: true,
@@ -29,8 +36,7 @@ const cookieOptions = {
 export const googleAuth = async (req, res, next) => {
   const stringifiedParams = queryString.stringify({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri:
-     'http://localhost:4444/api/users/google-redirect',
+     redirect_uri: REDIRECT_URI,
     scope: [
       'https://www.googleapis.com/auth/userinfo.email',
       'https://www.googleapis.com/auth/userinfo.profile',
@@ -58,8 +64,7 @@ export const googleRedirect = async (req, res, next) => {
     body: JSON.stringify({
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri:
-        'http://localhost:4444/api/users/google-redirect',
+      redirect_uri: REDIRECT_URI,
       grant_type: 'authorization_code',
       code,
     }),
@@ -127,7 +132,7 @@ export const googleRedirect = async (req, res, next) => {
     expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
   });
 
-  return res.redirect(`${process.env.APP_DOMAIN}/?${stringifiedParams}`);
+  return res.redirect(`${APP_DOMAIN}/?${stringifiedParams}`);
 };
 
 export const register = async (req, res, next) => {
