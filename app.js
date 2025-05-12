@@ -3,12 +3,15 @@ import morgan from "morgan";
 import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
+import {isProduction } from './config/config.js'
 
 import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
 
 const corsOptions = {
-  origin: ["https://petromazuryk.github.io", "http://localhost:5173"],
+  origin: isProduction 
+    ? [process.env.APP_DOMAIN] 
+    : [process.env.APP_DOMAIN_LOCAL, process.env.APP_DOMAIN],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
