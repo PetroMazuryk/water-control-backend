@@ -3,20 +3,20 @@ import morgan from "morgan";
 import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import {isProduction } from './config/config.js'
+import { isProduction } from "./config/config.js";
 
 import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
 
 const corsOptions = {
-  origin: isProduction 
-    ? [process.env.APP_DOMAIN] 
-    : [process.env.APP_DOMAIN_LOCAL, process.env.APP_DOMAIN],
+  origin: [process.env.APP_DOMAIN_LOCAL, process.env.APP_DOMAIN].filter(
+    Boolean
+  ),
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-if (process.env.NODE_ENV === "production") {
+if (isProduction) {
   console.log("Running in production mode");
 } else {
   console.log("Running in development mode");
