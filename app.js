@@ -9,9 +9,7 @@ import waterRouter from "./routes/water.js";
 import usersRouter from "./routes/users.js";
 
 const corsOptions = {
-  origin: [process.env.APP_DOMAIN_LOCAL, process.env.APP_DOMAIN].filter(
-    Boolean
-  ),
+  origin: ["https://petromazuryk.github.io", "http://localhost:5173"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
