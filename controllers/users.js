@@ -10,126 +10,150 @@ import {
 } from "../services/users.js";
 import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
-import {isProduction} from '../config/config.js'
-import queryString from 'query-string';
-import fetch from 'node-fetch';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import createHttpError from 'http-errors';
-import { generateTokens } from '../helpers/generateTokens.js';
+import { isProduction } from "../config/config.js";
+import queryString from "query-string";
+import fetch from "node-fetch";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import createHttpError from "http-errors";
+import { generateTokens } from "../helpers/generateTokens.js";
 
 const REDIRECT_URI = isProduction
-  ? 'https://water-control-backend.onrender.com/api/users/google-redirect'
-  : 'http://localhost:4444/api/users/google-redirect';
+  ? "https://water-control-backend.onrender.com/api/users/google-redirect"
+  : "http://localhost:4444/api/users/google-redirect";
 
-const APP_DOMAIN = isProduction 
-  ? process.env.APP_DOMAIN 
+const APP_DOMAIN = isProduction
+  ? process.env.APP_DOMAIN
   : process.env.APP_DOMAIN_LOCAL;
 
 const cookieOptions = {
   httpOnly: true,
   secure: isProduction,
   sameSite: isProduction ? "none" : "lax",
-  expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), 
+  expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
 };
 
 export const googleAuth = async (req, res, next) => {
   const stringifiedParams = queryString.stringify({
     client_id: process.env.GOOGLE_CLIENT_ID,
-     redirect_uri: REDIRECT_URI,
+    redirect_uri: REDIRECT_URI,
     scope: [
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-    ].join(' '),
-    response_type: 'code',
-    access_type: 'offline',
-    prompt: 'consent',
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ].join(" "),
+    response_type: "code",
+    access_type: "offline",
+    prompt: "consent",
   });
   return res.redirect(
-    `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`,
+    `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`
   );
 };
 
-export const googleRedirect = async (req, res, next) => {
-  const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+export const googleRedirect = async (req, res) => {
+  const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
   const urlObj = new URL(fullUrl);
   const urlParams = queryString.parse(urlObj.search);
   const code = urlParams.code;
 
   const tokenDataResponse = await fetch(`https://oauth2.googleapis.com/token`, {
-    method: 'post',
+    method: "post",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
       redirect_uri: REDIRECT_URI,
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
     }),
   });
 
   if (tokenDataResponse.status !== 200) {
-    throw createHttpError(500, 'Internal Server Error');
+    throw createHttpError(500, "Internal Server Error");
   }
 
   const tokenData = await tokenDataResponse.json();
 
   const userDataResponse = await fetch(
-    'https://www.googleapis.com/oauth2/v2/userinfo',
+    "https://www.googleapis.com/oauth2/v2/userinfo",
     {
-      method: 'get',
+      method: "get",
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
-    },
+    }
   );
 
   if (userDataResponse.status !== 200) {
-    throw createHttpError(500, 'Internal Server Error');
+    throw createHttpError(500, "Internal Server Error");
   }
+
   const userData = await userDataResponse.json();
 
   let user = await User.findOne({ email: userData.email });
-  if (!user) {
-    const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
 
-    const verificationToken = crypto.randomUUID();
-    user = await User.create({
-      name: userData.name ? userData.name : 'User',
-      email: userData.email,
-      password: passwordHash,
-      verificationToken: verificationToken,
-      photo: userData.picture ? userData.picture : null,
-      oauth: true,
+  if (user) {
+    const { accessToken, refreshToken } = generateTokens(user);
+
+    await User.findByIdAndUpdate(user._id, { token: accessToken });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     });
+
+    const stringifiedParams = queryString.stringify({
+      token: JSON.stringify(accessToken),
+      user: JSON.stringify({
+        email: user.email,
+        name: user.name,
+        weight: user.weight,
+        dailyActiveTime: user.dailyActiveTime,
+        dailyWaterConsumption: user.dailyWaterConsumption,
+        gender: user.gender,
+        photo: user.photo,
+      }),
+    });
+
+    return res.redirect(`${APP_DOMAIN}/?${stringifiedParams}`);
   }
 
-  const { accessToken, refreshToken } = generateTokens(user);
+  const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
 
-  await User.findByIdAndUpdate(user._id, { token: accessToken });
+  const newUser = await User.create({
+    name: userData.name || "User",
+    email: userData.email,
+    password: passwordHash,
+    photo: userData.picture || null,
+    oauth: true,
+  });
 
-  const updatedUser = {
-    email: user.email,
-    name: user.name,
-    weight: user.weight,
-    dailyActiveTime: user.dailyActiveTime,
-    dailyWaterConsumption: user.dailyWaterConsumption,
-    gender: user.gender,
-    photo: user.photo,
-  };
+  const { accessToken, refreshToken } = generateTokens(newUser);
+
+  await User.findByIdAndUpdate(newUser._id, { token: accessToken });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+  });
 
   const stringifiedParams = queryString.stringify({
     token: JSON.stringify(accessToken),
-    user: JSON.stringify(updatedUser),
-  });
-
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-    expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    user: JSON.stringify({
+      email: newUser.email,
+      name: newUser.name,
+      weight: newUser.weight,
+      dailyActiveTime: newUser.dailyActiveTime,
+      dailyWaterConsumption: newUser.dailyWaterConsumption,
+      gender: newUser.gender,
+      photo: newUser.photo,
+    }),
   });
 
   return res.redirect(`${APP_DOMAIN}/?${stringifiedParams}`);
@@ -153,7 +177,6 @@ export const login = async (req, res) => {
   }
 
   const { user, tokens } = await loginUser(email, password);
-
 
   res.cookie("refreshToken", tokens.refreshToken, cookieOptions);
 
@@ -181,7 +204,6 @@ export const refreshTokens = async (req, res) => {
 
   const tokens = await refreshUserSession(refreshToken);
 
-
   res.cookie("refreshToken", tokens.refreshToken, cookieOptions);
 
   res.status(200).json({ token: tokens.accessToken });
@@ -196,7 +218,6 @@ export const logout = async (req, res) => {
 
   await logoutUser(refreshToken);
 
-  
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: isProduction,

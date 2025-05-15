@@ -18,14 +18,13 @@ import {
   getUserCount,
   updateUserAccess,
   googleAuth,
-  googleRedirect
+  googleRedirect,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
 
-
-usersRouter.get('/google', ctrlWrapper(googleAuth));
-usersRouter.get('/google-redirect', ctrlWrapper(googleRedirect));
+usersRouter.get("/google", ctrlWrapper(googleAuth));
+usersRouter.get("/google-redirect", ctrlWrapper(googleRedirect));
 
 usersRouter.post(
   "/register",
