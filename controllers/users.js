@@ -95,6 +95,12 @@ export const googleRedirect = async (req, res) => {
   let user = await User.findOne({ email: userData.email });
 
   if (user) {
+    if (!user.oauth) {
+      user.oauth = true;
+      user.verificationToken = null;
+      await user.save();
+    }
+
     const { accessToken, refreshToken } = generateTokens(user);
 
     await User.findByIdAndUpdate(user._id, { token: accessToken });
@@ -130,6 +136,7 @@ export const googleRedirect = async (req, res) => {
     password: passwordHash,
     photo: userData.picture || null,
     oauth: true,
+    verificationToken: null,
   });
 
   const { accessToken, refreshToken } = generateTokens(newUser);
