@@ -51,10 +51,18 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    oauth: {
+      type: Boolean,
+      default: false,
+    },
     verificationToken: {
       type: String,
-      required: function () {
-        return !this.oauth;
+      default: null,
+      validate: {
+        validator: function (v) {
+          return this.oauth || v !== null;
+        },
+        message: "Verify token is required for non-OAuth users",
       },
     },
   },
