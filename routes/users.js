@@ -19,6 +19,7 @@ import {
   updateUserAccess,
   googleAuth,
   googleRedirect,
+  resetPasswordController,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
@@ -65,6 +66,12 @@ usersRouter.patch(
   validateMongoId(),
   validateBody(schemas.updateUserAccessSchema),
   ctrlWrapper(updateUserAccess)
+);
+
+usersRouter.post(
+  "/reset-password",
+  validateBody(schemas.resetPasswordSchema),
+  ctrlWrapper(resetPasswordController)
 );
 
 export default usersRouter;

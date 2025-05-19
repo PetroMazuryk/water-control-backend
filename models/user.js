@@ -110,11 +110,17 @@ const updateUserAccessSchema = Joi.object({
   access: Joi.boolean().required(),
 });
 
+export const resetPasswordSchema = Joi.object({
+  password: Joi.string().required(),
+  token: Joi.string().required(),
+});
+
 const schemas = {
   userRegisterSchema,
   loginUserSchema,
   infoUserSchema,
   updateUserAccessSchema,
+  resetPasswordSchema,
 };
 
 export { User, schemas };

@@ -7,6 +7,7 @@ import {
   updateUserDetails,
   uploadAvatarService,
   getUserCountService,
+  resetPassword,
 } from "../services/users.js";
 import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
@@ -300,4 +301,13 @@ export const updateUserAccess = async (req, res) => {
   }
 
   res.status(200).json({ message: "Access updated successfully.", user });
+};
+
+export const resetPasswordController = async (req, res) => {
+  await resetPassword(req.body);
+  res.json({
+    message: "Password was successfully reset!",
+    status: 200,
+    data: {},
+  });
 };
