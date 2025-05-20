@@ -4,6 +4,8 @@ import gravatar from "gravatar";
 import createHttpError from "http-errors";
 import { User } from "../models/user.js";
 import { generateTokens } from "../helpers/generateTokens.js";
+import { getEnvVar } from "../helpers/getEnvVar.js";
+import { sendResetEmail } from "../helpers/sendResetEmail.js";
 
 export const registerUser = async (data) => {
   const { email, password } = data;
@@ -141,4 +143,43 @@ export const resetPassword = async (payload) => {
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
 
   await User.updateOne({ _id: user._id }, { password: encryptedPassword });
+};
+
+export const requestResetToken = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+  const resetToken = jwt.sign(
+    {
+      sub: user._id,
+      email,
+    },
+    getEnvVar("JWT_SECRET"),
+    {
+      expiresIn: "5m",
+    }
+  );
+
+  const resetPasswordTemplatePath = path.join(
+    TEMPLATES_DIR,
+    "reset-password-email.html"
+  );
+
+  const templatesSource = (
+    await fs.readFile(resetPasswordTemplatePath)
+  ).toString();
+
+  const template = handlebars.compile(templatesSource);
+  const html = template({
+    email: user.email,
+    link: `${getEnvVar("APP_DOMAIN")}/reset-password?token=${resetToken}`,
+  });
+
+  await sendResetEmail({
+    from: getEnvVar(SMTP.SMTP_EMAIL),
+    to: email,
+    subject: "Reset your password",
+    html,
+  });
 };

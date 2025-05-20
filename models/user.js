@@ -115,12 +115,17 @@ export const resetPasswordSchema = Joi.object({
   token: Joi.string().required(),
 });
 
+export const sendResetPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
 const schemas = {
   userRegisterSchema,
   loginUserSchema,
   infoUserSchema,
   updateUserAccessSchema,
   resetPasswordSchema,
+  sendResetPasswordSchema,
 };
 
 export { User, schemas };
