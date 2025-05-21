@@ -11,8 +11,13 @@ import { generateTokens } from "../helpers/generateTokens.js";
 import { getEnvVar } from "../helpers/getEnvVar.js";
 import { sendResetEmail } from "../helpers/sendResetEmail.js";
 import { SMTP } from "../constants/SMTP/constants.js";
+import { isProduction } from "../config/config.js";
 
 const TEMPLATES_DIR = path.resolve("templates");
+
+const APP_DOMAIN = isProduction
+  ? process.env.APP_DOMAIN
+  : process.env.APP_DOMAIN_LOCAL;
 
 export const registerUser = async (data) => {
   const { email, password } = data;
@@ -182,7 +187,7 @@ export const requestResetToken = async (email) => {
   const template = handlebars.compile(templatesSource);
   const html = template({
     email: user.email,
-    link: `http://localhost:5173/reset-password?token=${resetToken}`,
+    link: `${APP_DOMAIN}/reset-password?token=${resetToken}`,
   });
 
   await sendResetEmail({
