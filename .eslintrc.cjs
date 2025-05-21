@@ -6,9 +6,15 @@ module.exports = {
   globals: {},
   parserOptions: {
     ecmaVersion: 2020,
+    sourceType: "module",
   },
-  extends: ["standard", "prettier"],
-  plugins: [],
+  plugins: ["import"],
+  extends: [
+    "standard",
+    "prettier",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+  ],
   rules: {
     "class-methods-use-this": "off",
     "array-bracket-newline": "off",
@@ -126,6 +132,15 @@ module.exports = {
     "use-isnan": "error",
     "wrap-iife": "error",
     yoda: "error",
+
+    // додатково щоб підсвічувало неоголошені змінні
+    "no-undef": "error",
+
+    // import plugin rules для перевірки імпортів
+    "import/no-unresolved": "error",
+    "import/named": "error",
+    "import/default": "error",
+    "import/namespace": "error",
   },
   overrides: [
     {

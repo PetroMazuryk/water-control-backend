@@ -20,7 +20,7 @@ import {
   googleAuth,
   googleRedirect,
   resetPasswordController,
-  sendResetPassworController,
+  sendResetPasswordController,
 } from "../controllers/users.js";
 
 const usersRouter = express.Router();
@@ -78,7 +78,7 @@ usersRouter.post(
 usersRouter.post(
   "/send-reset-password",
   validateBody(schemas.sendResetPasswordSchema),
-  ctrlWrapper(sendResetPassworController)
+  ctrlWrapper(sendResetPasswordController)
 );
 
 export default usersRouter;

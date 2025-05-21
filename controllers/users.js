@@ -8,7 +8,9 @@ import {
   uploadAvatarService,
   getUserCountService,
   resetPassword,
+  requestResetToken,
 } from "../services/users.js";
+
 import { User } from "../models/user.js";
 import { saveFileToCloudinary } from "../helpers/saveFileToCloudinary.js";
 import { isProduction } from "../config/config.js";
@@ -312,7 +314,7 @@ export const resetPasswordController = async (req, res) => {
   });
 };
 
-export const sendResetPassworController = async (req, res) => {
+export const sendResetPasswordController = async (req, res) => {
   await requestResetToken(req.body.email);
   res.json({
     status: 200,

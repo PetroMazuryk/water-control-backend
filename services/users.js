@@ -1,11 +1,18 @@
+import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
+import fs from "fs/promises";
+import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
+import handlebars from "handlebars";
 import createHttpError from "http-errors";
 import { User } from "../models/user.js";
 import { generateTokens } from "../helpers/generateTokens.js";
 import { getEnvVar } from "../helpers/getEnvVar.js";
 import { sendResetEmail } from "../helpers/sendResetEmail.js";
+import { SMTP } from "../constants/SMTP/constants.js";
+
+const TEMPLATES_DIR = path.resolve("templates");
 
 export const registerUser = async (data) => {
   const { email, password } = data;
@@ -147,9 +154,11 @@ export const resetPassword = async (payload) => {
 
 export const requestResetToken = async (email) => {
   const user = await User.findOne({ email });
+
   if (!user) {
     throw createHttpError(404, "User not found");
   }
+
   const resetToken = jwt.sign(
     {
       sub: user._id,
@@ -173,7 +182,7 @@ export const requestResetToken = async (email) => {
   const template = handlebars.compile(templatesSource);
   const html = template({
     email: user.email,
-    link: `${getEnvVar("APP_DOMAIN")}/reset-password?token=${resetToken}`,
+    link: `http://localhost:5173/reset-password?token=${resetToken}`,
   });
 
   await sendResetEmail({
